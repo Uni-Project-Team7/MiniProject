@@ -32,7 +32,7 @@ def decode_and_build_unet(model_array):
     stage3 = model_function(bottleneck_model, bottleneck_params)
 
     # Constructing the UNet
-    unet_model = build_unet(stage0, stage1, stage2, stage3)
+    unet_model = build_unet(stage0, stage1, stage2, stage3, dim)
     return unet_model
 
 
@@ -93,7 +93,7 @@ class Generator(nn.Module):
             stage1[0]
         )
         self.enc2 = nn.sequential(
-            nn.conv2d(dim *  2, dim * 4, kernel_size=3, stride=2, padding=1),
+            nn.conv2d(dim * 2, dim * 4, kernel_size=3, stride=2, padding=1),
             stage2[0]
         )
         self.bottleneck = nn.sequential(
@@ -113,18 +113,15 @@ class Generator(nn.Module):
             stage2[1]
         )
 
-
-    def forward(self, x):
+    def forward(self, x, test=False):
         e0 = self.enc0(x)
-        e1 = self.enc1(x)
-        e2 = self.enc2(x)
+        e1 = self.enc1(e0)
+        e2 = self.enc2(e1)
         bottle = self.bottleneck(x)
-        d1 = self.dec0(bottle)
-        up1 = self.up1(bottleneck)
-        up2 = self.up2(torch.cat([up1, d7], 1))
-        up3 = self.up3(torch.cat([up2, d6], 1))
-        up4 = self.up4(torch.cat([up3, d5], 1))
-        up5 = self.up5(torch.cat([up4, d4], 1))
-        up6 = self.up6(torch.cat([up5, d3], 1))
-        up7 = self.up7(torch.cat([up6, d2], 1))
-        return self.final_up(torch.cat([up7, d1], 1))
+        d0 = self.dec0(bottle)
+        d1 = self.dec1(torch.cat([d0, e2], 1))
+        d2 = self.dec(torch.cat([d1, e1], 1))
+        if test:
+            return e0, e1, e2, bottle, d0, d1, d2
+
+        return d2

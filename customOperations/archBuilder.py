@@ -1,8 +1,11 @@
+from base_arch.LakdNet import Mixerblock
+
 def nafnet_builder(params) :
     pass
 
 def lakd_builder(params) :
-    pass
+    blocks = []
+
 
 def UFP_builder(params) :
     pass
@@ -26,4 +29,6 @@ def FFT_builder(params) :
     pass
 
 def conv_def_builder(params) :
-    pass
+    if params[2] == 0 :
+
+
