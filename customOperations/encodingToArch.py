@@ -13,18 +13,30 @@ from archBuilder import *
 # 8	FFT-Former
 # 9 conv-default
 
-
+# input = (x, 3, 512, 512)
+# after 1st down-sample = (x, 64, 256, 256)
+# after enc0 = (x, 64, 256, 256)
+# after 2nd down-sample = (x, 128, 128, 128)
+# after enc1 = (x, 128, 128, 128)
+# after 3rd down-sample = (x, 256, 64, 64)
+# after enc2  = (x, 256, 64, 64)
+# after bottleneck = (x, 256, 64, 64)
+# after 1st up-sample = (x, 128, 128, 128)
+# after dec0 = (x, 128, 128, 128)
+# after 1st skip connection = (x, 256, 128, 128)
+# after 2nd up-sample = (x, 128,
 def decode_and_build_unet(model_array):
     # Parsing models
+    dim = 64
     model1 = model_array[0]
     model2 = model_array[1]
     model3 = model_array[2]
     bottleneck_model = model_array[3]
 
-    model1_params = [model_array[4], model_array[5], 0]
-    model2_params = [model_array[6], model_array[7], 1]
-    model3_params = [model_array[8], model_array[9], 2]
-    bottleneck_params = [model_array[10], model_array[11], 3]
+    model1_params = [model_array[4], model_array[5], 0, dim]
+    model2_params = [model_array[6], model_array[7], 1, dim]
+    model3_params = [model_array[8], model_array[9], 2, dim]
+    bottleneck_params = [model_array[10], model_array[11], 3, dim]
 
     stage0 = model_function(model1, model1_params)
     stage1 = model_function(model2, model2_params)
@@ -82,36 +94,44 @@ print("Final UNet model:", unet)
 
 
 class Generator(nn.Module):
-    def _init_(self, stage0, stage1, stage2, bottleneck, dim):
+    def __init__(self, stage0, stage1, stage2, bottleneck, dim):
         super().__init__()
-        self.enc0 = nn.sequential(
-            nn.conv2d(3, dim, kernel_size=3, stride=2, padding=1),
+
+        self.initial = nn.Conv2d(3, dim, kernel_size=3, stride=1, padding=1)
+
+        self.enc0 = nn.Sequential(
+            nn.Conv2d(dim, dim * 2, kernel_size=3, stride=2, padding=1),
             stage0[0]
         )
-        self.enc1 = nn.sequential(
-            nn.conv2d(dim, dim * 2, kernel_size=3, stride=2, padding=1),
+        self.enc1 = nn.Sequential(
+            nn.Conv2d(dim * 2, dim * 4, kernel_size=3, stride=2, padding=1),
             stage1[0]
         )
-        self.enc2 = nn.sequential(
-            nn.conv2d(dim * 2, dim * 4, kernel_size=3, stride=2, padding=1),
+        self.enc2 = nn.Sequential(
+            nn.Conv2d(dim * 4, dim * 8, kernel_size=3, stride=2, padding=1),
             stage2[0]
         )
-        self.bottleneck = nn.sequential(
-            nn.conv2d(dim * 4, dim * 4, kernel_size=3, stride=2, padding=1),
+        self.bottleneck = nn.Sequential(
+            nn.Conv2d(dim * 8, dim * 8, kernel_size=3, stride=2, padding=1),
             bottleneck[0]
         )
-        self.dec0 = nn.sequential(
-            nn.conv2d(dim * 4 * 2 , dim * 2, kernel_size=3, stride=2, padding=1),
+        self.dec0 = nn.Sequential(
+            nn.Conv2d(dim * 8, dim * 8 * 2, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.PixelShuffle(2),
             stage0[1]
         )
-        self.dec1 = nn.sequential(
-            nn.conv2d(dim * 2 * 2, dim, kernel_size=3, stride=2, padding=1),
+        self.dec1 = nn.Sequential(
+            nn.Conv2d(dim * 4 * 2, dim * 4 * 2 * 2, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.PixelShuffle(2),
             stage1[1]
         )
-        self.dec2 = nn.sequential(
-            nn.conv2d(dim * 2, 3, kernel_size=3, stride=2, padding=1),
+        self.dec2 = nn.Sequential(
+            nn.Conv2d(dim * 2 * 2, dim * 2 * 2 * 2, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.PixelShuffle(2),
             stage2[1]
         )
+
+        self.final = nn.Conv2d(dim, 3, kernel_size=3, stride=1, padding=1, bias=bias)
 
     def forward(self, x, test=False):
         e0 = self.enc0(x)
@@ -121,7 +141,8 @@ class Generator(nn.Module):
         d0 = self.dec0(bottle)
         d1 = self.dec1(torch.cat([d0, e2], 1))
         d2 = self.dec(torch.cat([d1, e1], 1))
+        out = self.final(d2)
         if test:
-            return e0, e1, e2, bottle, d0, d1, d2
+            return e0, e1, e2, bottle, d0, d1, d2, out
 
-        return d2
+        return out
