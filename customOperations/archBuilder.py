@@ -1,35 +1,44 @@
 from base_arch.LakdNet import Mixerblock
-
-def nafnet_builder(params) :
+import torch
+import torch.nn as nn
+def nafnet_builder(params):
     pass
 
-def lakd_builder(params) :
+
+def lakd_builder(params):
     blocks = []
 
 
-
-def UFP_builder(params) :
+def UFP_builder(params):
     pass
 
-def CG_builder(params) :
+
+def CG_builder(params):
     pass
 
-def Capt_builder(params) :
+
+def Capt_builder(params):
     pass
 
-def Rest_builder(params) :
+
+def Rest_builder(params):
     pass
 
-def Lo_builder(params) :
+
+def Lo_builder(params):
     pass
 
-def Swin_builder(params) :
+
+def Swin_builder(params):
     pass
 
-def FFT_builder(params) :
+
+def FFT_builder(params):
     pass
 
-def conv_def_builder(params) :
-    if params[2] == 0 :
+
+def conv_def_builder(params):
+    dim = params[3] * (2 ** params[2])
+    return [nn.Conv2d(in_channels = dim, out_channels = dim, kernel_size = 1), nn.Conv2d(in_channels = dim, out_channels = dim, kernel_size = 1)]
 
 

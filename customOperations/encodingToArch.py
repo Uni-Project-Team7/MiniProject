@@ -13,21 +13,16 @@ from archBuilder import *
 # 8	FFT-Former
 # 9 conv-default
 
-# input = (x, 3, 512, 512)
-# after 1st down-sample = (x, 64, 256, 256)
-# after enc0 = (x, 64, 256, 256)
-# after 2nd down-sample = (x, 128, 128, 128)
-# after enc1 = (x, 128, 128, 128)
-# after 3rd down-sample = (x, 256, 64, 64)
-# after enc2  = (x, 256, 64, 64)
-# after bottleneck = (x, 256, 64, 64)
-# after 1st up-sample = (x, 128, 128, 128)
-# after dec0 = (x, 128, 128, 128)
-# after 1st skip connection = (x, 256, 128, 128)
-# after 2nd up-sample = (x, 128,
-def decode_and_build_unet(model_array):
+# enc0 : (x, 64, 512, 512)
+# enc1 : (x, 128, 256, 256)
+# enc2 : (x, 256, 128, 128)
+# bottleneck : (x, 512, 64, 64)
+# dec0 : (x, 256, 128, 128)
+# dec1 : (x, 128, 256, 256)
+# dec2 : (x, 64, 512, 512)
+
+def decode_and_build_unet(model_array, dim = 64):
     # Parsing models
-    dim = 64
     model1 = model_array[0]
     model2 = model_array[1]
     model3 = model_array[2]
@@ -44,7 +39,7 @@ def decode_and_build_unet(model_array):
     stage3 = model_function(bottleneck_model, bottleneck_params)
 
     # Constructing the UNet
-    unet_model = build_unet(stage0, stage1, stage2, stage3, dim)
+    unet_model = Model(stage0, stage1, stage2, stage3, dim)
     return unet_model
 
 
@@ -73,76 +68,82 @@ def model_function(model_type, params):
             return conv_def_builder(params)
 
 
-# Example of a UNet builder
-def build_unet(encoder1, encoder2, encoder3, bottleneck):
-    # This function would assemble the UNet architecture using the provided encoders and bottleneck
-    print("Assembling UNet with:")
-    print(f"  Encoder 1: {encoder1}")
-    print(f"  Encoder 2: {encoder2}")
-    print(f"  Encoder 3: {encoder3}")
-    print(f"  Bottleneck: {bottleneck}")
-    # Here you'd implement the UNet construction logic
-    return "UNet_model"
+class Downsample(nn.Module):
+    def __init__(self, dim):
+        super(Downsample, self).__init__()
+        self.body = nn.Sequential(nn.Conv2d(dim, dim // 2, kernel_size=3, stride=1, padding=1, bias=False),
+                                  nn.PixelUnshuffle(2))
+
+    def forward(self, x):
+        return self.body(x)
 
 
-# Example usage
-model_array = ["modelA", "modelB", "modelC", "modelD",
-               0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+class Upsample(nn.Module):
+    def __init__(self, dim):
+        super(Upsample, self).__init__()
+        self.body = nn.Sequential(nn.Conv2d(dim, dim * 2, kernel_size=3, stride=1, padding=1, bias=False),
+                                  nn.PixelShuffle(2))
 
-unet = decode_and_build_unet(model_array)
-print("Final UNet model:", unet)
+    def forward(self, x):
+        return self.body(x)
 
 
-class Generator(nn.Module):
-    def __init__(self, stage0, stage1, stage2, bottleneck, dim):
+class Model(nn.Module):
+    def __init__(self, stage0, stage1, stage2, stage3, dim=64):
         super().__init__()
-
         self.initial = nn.Conv2d(3, dim, kernel_size=3, stride=1, padding=1)
+        self.enc0 = stage0[0]
+        self.down0 = Downsample(dim)
+        self.enc1 = stage1[0]
+        self.down1 = Downsample(dim * 2)
+        self.enc2 = stage2[0]
+        self.down2 = Downsample(dim * 4)
+        self.bottleneck = stage3[0]
+        self.up2 = Upsample(dim * 8)
+        self.reduce2 = nn.Conv2d(in_channels=dim * 8, out_channels=dim * 4, kernel_size=1, bias=False)
 
-        self.enc0 = nn.Sequential(
-            nn.Conv2d(dim, dim * 2, kernel_size=3, stride=2, padding=1),
-            stage0[0]
-        )
-        self.enc1 = nn.Sequential(
-            nn.Conv2d(dim * 2, dim * 4, kernel_size=3, stride=2, padding=1),
-            stage1[0]
-        )
-        self.enc2 = nn.Sequential(
-            nn.Conv2d(dim * 4, dim * 8, kernel_size=3, stride=2, padding=1),
-            stage2[0]
-        )
-        self.bottleneck = nn.Sequential(
-            nn.Conv2d(dim * 8, dim * 8, kernel_size=3, stride=2, padding=1),
-            bottleneck[0]
-        )
-        self.dec0 = nn.Sequential(
-            nn.Conv2d(dim * 8, dim * 8 * 2, kernel_size=3, stride=1, padding=1, bias=False),
-            nn.PixelShuffle(2),
-            stage0[1]
-        )
-        self.dec1 = nn.Sequential(
-            nn.Conv2d(dim * 4 * 2, dim * 4 * 2 * 2, kernel_size=3, stride=1, padding=1, bias=False),
-            nn.PixelShuffle(2),
-            stage1[1]
-        )
-        self.dec2 = nn.Sequential(
-            nn.Conv2d(dim * 2 * 2, dim * 2 * 2 * 2, kernel_size=3, stride=1, padding=1, bias=False),
-            nn.PixelShuffle(2),
-            stage2[1]
-        )
+        self.dec2 = stage2[1]
+        self.up1 = Upsample(dim * 4)
+        self.reduce1 = nn.Conv2d(in_channels=dim * 4, out_channels=dim * 2, kernel_size=1, bias=False)
 
-        self.final = nn.Conv2d(dim, 3, kernel_size=3, stride=1, padding=1, bias=bias)
+        self.dec1 = stage1[1]
+
+        self.up0 = Upsample(dim * 2)
+        self.reduce0 = nn.Conv2d(in_channels=dim * 2, out_channels=dim, kernel_size=1, bias=False)
+        self.dec0 = stage0[1]
+
+        self.final = nn.Conv2d(in_channels=dim, out_channels=3, kernel_size=3, stride=1, padding=1, bias=False)
 
     def forward(self, x, test=False):
-        e0 = self.enc0(x)
-        e1 = self.enc1(e0)
-        e2 = self.enc2(e1)
-        bottle = self.bottleneck(x)
-        d0 = self.dec0(bottle)
-        d1 = self.dec1(torch.cat([d0, e2], 1))
-        d2 = self.dec(torch.cat([d1, e1], 1))
-        out = self.final(d2)
-        if test:
-            return e0, e1, e2, bottle, d0, d1, d2, out
+        embedded_tensor = self.initial(x)
+        enc0_out = self.enc0(embedded_tensor)
 
-        return out
+        down0_out = self.down0(enc0_out)
+        enc1_out = self.enc1_out(down0_out)
+
+        down1_out = self.down1(enc1_out)
+        enc2_out = self.enc2_out(down1_out)
+
+        down2_out = self.down2(enc2_out)
+
+        bottle = self.bottleneck(down2_out)
+
+        up2_out = self.up2(bottle)
+        skip2 = torch.cat([up2_out, enc2_out], 1)
+        reduce_chan2 = self.reduce2(skip2)
+        dec2_out = self.dec2(reduce_chan2)
+
+        up1_out = self.up1(dec2_out)
+        skip1 = torch.cat([up1_out, enc1_out], 1)
+        reduce_chan1 = self.reduce1(skip1)
+        dec1_out = self.dec1(reduce_chan1)
+
+        up0_out = self.up0(dec1_out)
+        skip0 = torch.cat([up0_out, enc0_out], 1)
+        reduce_chan0 = self.reduce0(skip0)
+        dec0_out = self.dec0(reduce_chan0)
+
+        if test :
+            return enc0_out, enc1_out, enc2_out, bottle, dec0_out, dec1_out, dec2_out, self.final(dec0_out)
+
+        return self.final(dec0_out)
