@@ -114,15 +114,15 @@ class Model(nn.Module):
 
         self.final = nn.Conv2d(in_channels=dim, out_channels=3, kernel_size=3, stride=1, padding=1, bias=False)
 
-    def forward(self, x, test=False):
+    def forward(self, x):
         embedded_tensor = self.initial(x)
         enc0_out = self.enc0(embedded_tensor)
 
         down0_out = self.down0(enc0_out)
-        enc1_out = self.enc1_out(down0_out)
+        enc1_out = self.enc1(down0_out)
 
         down1_out = self.down1(enc1_out)
-        enc2_out = self.enc2_out(down1_out)
+        enc2_out = self.enc2(down1_out)
 
         down2_out = self.down2(enc2_out)
 
@@ -143,7 +143,6 @@ class Model(nn.Module):
         reduce_chan0 = self.reduce0(skip0)
         dec0_out = self.dec0(reduce_chan0)
 
-        if test :
-            return enc0_out, enc1_out, enc2_out, bottle, dec0_out, dec1_out, dec2_out, self.final(dec0_out)
+        return enc0_out, enc1_out, enc2_out, bottle, dec2_out, dec1_out, dec0_out, self.final(dec0_out)
 
-        return self.final(dec0_out)
+        #return self.final(dec0_out)

@@ -1,0 +1,64 @@
+xu:
+  Nafnet:
+    param1: value1
+    param2: value2
+  Lakd-Net:
+    param1: value1
+    param2: value2
+  UFP-Deblur:
+    param1: value1
+    param2: value2
+  CGNet:
+    param1: value1
+    param2: value2
+  CaptNet:
+    param1: value1
+    param2: value2
+  Restormer:
+    param1: value1
+    param2: value2
+  Loformer:
+    param1: value1
+    param2: value2
+  SwinIR:
+    param1: value1
+    param2: value2
+  FFT-Former:
+    param1: value1
+    param2: value2
+  conv-default:
+    param1: value1
+    param2: value2
+
+xl:
+  Nafnet:
+    param1: value1
+    param2: value2
+  Lakd-Net:
+    param1: value1
+    param2: value2
+  UFP-Deblur:
+    param1: value1
+    param2: value2
+  CGNet:
+    param1: value1
+    param2: value2
+  CaptNet:
+    param1: value1
+    param2: value2
+  Restormer:
+    param1: value1
+    param2: value2
+  Loformer:
+    param1: value1
+    param2: value2
+  SwinIR:
+    param1: value1
+    param2: value2
+  FFT-Former:
+    param1: value1
+    param2: value2
+  conv-default:
+    param1: value1
+    param2: value2
+
