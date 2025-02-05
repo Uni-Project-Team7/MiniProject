@@ -114,7 +114,7 @@ class Model(nn.Module):
 
         self.final = nn.Conv2d(in_channels=dim, out_channels=3, kernel_size=3, stride=1, padding=1, bias=False)
 
-    def forward(self, x):
+    def forward(self, x, test = False):
         embedded_tensor = self.initial(x)
         enc0_out = self.enc0(embedded_tensor)
 
@@ -142,7 +142,8 @@ class Model(nn.Module):
         skip0 = torch.cat([up0_out, enc0_out], 1)
         reduce_chan0 = self.reduce0(skip0)
         dec0_out = self.dec0(reduce_chan0)
+        
+        if test:
+            return enc0_out, enc1_out, enc2_out, bottle, dec2_out, dec1_out, dec0_out, self.final(dec0_out)
 
-        return enc0_out, enc1_out, enc2_out, bottle, dec2_out, dec1_out, dec0_out, self.final(dec0_out)
-
-        #return self.final(dec0_out)
+        return self.final(dec0_out)

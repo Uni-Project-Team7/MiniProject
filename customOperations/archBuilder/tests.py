@@ -1,6 +1,8 @@
 import torch
 from encodingToArch import decode_and_build_unet
 import numpy as np
+import yaml
+import sys
 
 def tester(model_conf, param1xl, param1xu, param2xl, param2xu):
     base_array = np.zeros(12)
@@ -9,7 +11,7 @@ def tester(model_conf, param1xl, param1xu, param2xl, param2xu):
     height = 512
     width = 512
     dim = 64
-    batch_size = 12
+    batch_size = 2
     channels = 3
     expected_enc0_shape = (batch_size, dim, height, width)
     expected_enc1_shape = (batch_size, dim * 2, height // 2, width // 2)
@@ -27,11 +29,11 @@ def tester(model_conf, param1xl, param1xu, param2xl, param2xu):
             base_array[i * 2 + 4] = j
             for k in range(param2xl, param2xu + 1):
                 base_array[i * 2 + 5] = k
-                model = decode_and_build_unet(base_array, dim)
-                image = torch.randn(batch_size, channels, height, width)
+                model = decode_and_build_unet(base_array, dim).cuda()
+                image = torch.randn(batch_size, channels, height, width).cuda()
                 print(j, k, i)
                 with torch.no_grad():
-                    enc0_out, enc1_out, enc2_out, bottle, dec0_out, dec1_out, dec2_out, final = model(image)
+                    enc0_out, enc1_out, enc2_out, bottle, dec0_out, dec1_out, dec2_out, final = model(image, test = True)
 
                 assert enc0_out.shape == expected_enc0_shape, f"enc0_out shape mismatch: {enc0_out.shape}"
                 assert enc1_out.shape == expected_enc1_shape, f"enc1_out shape mismatch: {enc1_out.shape}"
@@ -48,4 +50,12 @@ def tester(model_conf, param1xl, param1xu, param2xl, param2xu):
 
         base_array[i] = 9
 
-tester(1, 1, 8 ,0, 4)
+
+with open("configs.yaml", "r") as file:
+    config = yaml.safe_load(file)
+
+model_id = int(sys.argv[1])
+model_name = config['model_conf'][model_id]
+
+tester(model_id, config['xl'][model_name]['param1'], config['xu'][model_name]['param1'],
+       config['xl'][model_name]['param2'], config['xu'][model_name]['param2'])
