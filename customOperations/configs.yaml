@@ -26,7 +26,7 @@ xl:
     param1: 1
     param2: 0
   "CaptNet":
-    param1: 4+
+    param1: 4
     param2: 1
   "Restormer":
     param1: 4

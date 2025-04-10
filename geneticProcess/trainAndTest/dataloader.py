@@ -10,7 +10,13 @@ class DeblurringDataset(Dataset):
     def __init__(self, blurred_dir, sharp_dir):
         self.blurred_dir = blurred_dir
         self.sharp_dir = sharp_dir
-        self.transform = A.Compose([A.HorizontalFlip(p=0.5), A.RandomBrightnessContrast(p=0.2), A.GaussNoise(p=0.2), A.RandomResizedCrop(height=256, width=256, scale=(0.8, 1.0)), ToTensorV2()])
+        self.transform = A.Compose(
+            [
+                ToTensorV2()
+            ], # type: ignore
+            additional_targets={"image0": "image"}
+        )
+
         self.image_filenames = sorted(os.listdir(blurred_dir))
 
     def __len__(self):
@@ -32,3 +38,10 @@ class DeblurringDataset(Dataset):
             sharp = augmented['image0']
         
         return blurred, sharp
+
+
+if __name__ == '__main__' :
+    dataset = DeblurringDataset(blurred_dir='/teamspace/studios/this_studio/dataset/train_crops/blur_crops', sharp_dir='/teamspace/studios/this_studio/dataset/train_crops/sharp_crops')
+    print(f"Number of train image pairs: {len(dataset)}")
+    dataset = DeblurringDataset(blurred_dir='/teamspace/studios/this_studio/dataset/val_crops/blur_crops', sharp_dir='/teamspace/studios/this_studio/dataset/val_crops/sharp_crops')
+    print(f"Number of val image pairs: {len(dataset)}")
