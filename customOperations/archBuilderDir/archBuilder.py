@@ -12,14 +12,14 @@ def nafnet_builder(params):
     dim = params[3] * (2 ** params[2])
     param1 = int(params[0])
     param2 = int(params[1])
-    print(param1, param2, dim)
+    #print(param1, param2, dim)
     if params[2]!=3 :
         return[
             nn.Sequential(
                 *[NAFBlock(dim) for _ in range(param1)]),
             nn.Sequential(
                 *[NAFBlock(dim) for _ in range(param1)])
-             ]
+            ]
     else :
         return [
             nn.Sequential(
@@ -69,7 +69,7 @@ def Capt_builder(params):
             param2 = 8
         case 3:
             param2 = 16
-            
+    
     if params[2] != 3:
         return [nn.Sequential(*([CaptCNNBlock(dim) for _ in range(param1)] if params[2] <= 0
                 else [CaptBlock(dim, num_heads=param2) for _ in range(param1)])),
@@ -91,7 +91,7 @@ def Rest_builder(params):
             param2 = 8
         case _:
             pass 
-    print(param1, param2, dim)
+    #print(param1, param2, dim)
     if params[2] != 3:
         return [nn.Sequential(*[RestormerBlock(dim=dim, num_heads=param2, ffn_expansion_factor=2.66, bias=False,
                 LayerNorm_type='WithBias') for i in range(param1)]),
@@ -117,7 +117,7 @@ def Lo_builder(params):
         case _:
             pass 
     
-    print(param1, param2, dim)
+    #print(param1, param2, dim)
     if params[2] != 3:
         return [
             nn.Sequential(
@@ -154,7 +154,7 @@ def Lo_builder(params):
 def FFT_builder(params):
     dim = params[3] * (2 ** params[2])
     param1 = int(params[0])
-    print(param1, dim)
+    #print(param1, dim)
     if params[2] != 3:
         return [nn.Sequential(*[FftBlock(dim=dim, ffn_expansion_factor=3, bias=False) for i in range(param1)]),
                 nn.Sequential(*[FftBlock(dim=dim, att=True, ffn_expansion_factor=3, bias=False) for i in range(param1)])

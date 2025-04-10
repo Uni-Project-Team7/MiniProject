@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from archBuilder import *
+from archBuilder import Rest_builder
 
 # 0	Nafnet
 # 1	Lakd-Net
@@ -27,7 +28,9 @@ def decode_and_build_unet(model_array, dim = 64):
     model2 = model_array[1]
     model3 = model_array[2]
     bottleneck_model = model_array[3]
-
+    #print("ia ma ")
+    
+    #print(model_array)
     model1_params = [model_array[4], model_array[5], 0, dim]
     model2_params = [model_array[6], model_array[7], 1, dim]
     model3_params = [model_array[8], model_array[9], 2, dim]
@@ -38,12 +41,10 @@ def decode_and_build_unet(model_array, dim = 64):
     stage2 = model_function(model3, model3_params)
     stage3 = model_function(bottleneck_model, bottleneck_params)
 
-    # Constructing the UNet
     unet_model = Model(stage0, stage1, stage2, stage3, dim)
     return unet_model
 
 
-# Example of a model function
 def model_function(model_type, params):
     match model_type:
         case 0:
@@ -51,19 +52,19 @@ def model_function(model_type, params):
         case 1:
             return lakd_builder(params)
         case 2:
-            return UFP_builder(params)
+            return FFT_builder(params)
         case 3:
             return CG_builder(params)
         case 4:
-            return Capt_builder(params)
-        case 5:
             return Rest_builder(params)
+        case 5:
+            return Capt_builder(params)
         case 6:
-            return Lo_builder(params)
+            return UFP_builder(params)
         case 7:
             return Swin_builder(params)
         case 8:
-            return FFT_builder(params)
+            return Lo_builder(params)
         case 9:
             return conv_def_builder(params)
 

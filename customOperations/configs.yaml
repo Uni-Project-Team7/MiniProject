@@ -1,14 +1,16 @@
 model_conf:
   0: 'Nafnet'
   1: 'Lakd-Net'
-  2: 'UFP-Deblur'
+  2: 'FFT-Former'
   3: 'CGNet'
-  4: 'CaptNet'
-  5: 'Restormer'
-  6: 'Loformer'
+  4: 'Restormer'
+  5: 'CaptNet'
+  6: 'UFP-Deblur'
   7: 'SwinIR'
-  8: 'FFT-Former'
+  8: 'Loformer'
 
+model_key_xl: 0
+model_key_xu: 4
 
 xl:
   "Nafnet":
@@ -24,7 +26,7 @@ xl:
     param1: 1
     param2: 0
   "CaptNet":
-    param1: 4
+    param1: 4+
     param2: 1
   "Restormer":
     param1: 4

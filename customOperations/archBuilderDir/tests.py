@@ -51,7 +51,7 @@ def tester(model_conf, param1xl, param1xu, param2xl, param2xu):
         base_array[i] = 9
 
 
-with open("configs.yaml", "r") as file:
+with open("../../configs.yaml", "r") as file:
     config = yaml.safe_load(file)
 
 model_id = int(sys.argv[1])
