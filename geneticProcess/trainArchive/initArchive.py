@@ -8,10 +8,10 @@ import json
 if __name__ == '__main__' :
     problem = Problem(n_var=12, n_obj=2, xl=[0, 0, 0, 0, -2, -2, -2, -2, -2, -2, -2, -2], xu=[8, 8, 8, 8, -2, -2, -2, -2, -2, -2, -2, -2])
     sampler = CustomIntegerRandomSampling()
-    pop = sampler._do(problem, 30)
+    pop = sampler._do(problem, 100)
     archive = []
     for i in pop:
-        a = {'dv' : i.tolist(), 'L1Train' : -2, 'PSNRVal' : -2, 'Synflow' : -2, 'FLOPS' : -2} 
+        a = {'dv' : i.tolist(), 'L1Train' : -2.0, 'PSNRVal' : -2.0, 'Synflow' : -2.0, 'FLOPS' : -2, 'Params' : -2.0} 
         archive.append(a)
 
     with open('archive.json', 'w') as f:
