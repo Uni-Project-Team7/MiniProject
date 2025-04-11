@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from archBuilder import *
-from archBuilder import Rest_builder
+from customOperations.archBuilderDir.archBuilder import *
+
 
 # 0	Nafnet
 # 1	Lakd-Net

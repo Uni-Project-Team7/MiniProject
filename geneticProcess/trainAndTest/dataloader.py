@@ -12,11 +12,11 @@ class DeblurringDataset(Dataset):
         self.sharp_dir = sharp_dir
         self.transform = A.Compose(
             [
-                ToTensorV2()
-            ], # type: ignore
+                A.Normalize(mean=0, std=1, max_pixel_value=255.0),
+                ToTensorV2(),
+            ],
             additional_targets={"image0": "image"}
         )
-
         self.image_filenames = sorted(os.listdir(blurred_dir))
 
     def __len__(self):

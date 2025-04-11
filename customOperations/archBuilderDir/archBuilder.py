@@ -1,11 +1,10 @@
-from base_arch.LakdNet import Mixerblock as LakdBlock
-from base_arch.FftFormer import TransformerBlock as FftBlock
-from base_arch.Loformer import TransformerBlock_2b as LoformerBlock
-from base_arch.Nafnet import NAFBlock
-from base_arch.CGNet import NAFBlock0 as CGNafnet, CascadedGazeBlock as CGBlock
-from base_arch.Restormer import TransformerBlock as RestormerBlock
-from base_arch.CaptNet import TransformerBlock as CaptBlock, CNNBlock as CaptCNNBlock
-import torch
+from customOperations.archBuilderDir.base_arch.LakdNet import Mixerblock as LakdBlock
+from customOperations.archBuilderDir.base_arch.FftFormer import TransformerBlock as FftBlock
+from customOperations.archBuilderDir.base_arch.Loformer import TransformerBlock_2b as LoformerBlock
+from customOperations.archBuilderDir.base_arch.Nafnet import NAFBlock
+from customOperations.archBuilderDir.base_arch.CGNet import NAFBlock0 as CGNafnet, CascadedGazeBlock as CGBlock
+from customOperations.archBuilderDir.base_arch.Restormer import TransformerBlock as RestormerBlock
+from customOperations.archBuilderDir.base_arch.CaptNet import TransformerBlock as CaptBlock, CNNBlock as CaptCNNBlock
 import torch.nn as nn
 
 def nafnet_builder(params):
