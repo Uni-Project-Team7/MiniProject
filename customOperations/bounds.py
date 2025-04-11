@@ -1,10 +1,12 @@
 import yaml
 import numpy as np
+import os
 
 
 def dynamic_xu_xl(model_keys):
     assert len(model_keys) == 4
-    with open("./configs.yaml", "r") as file:
+    config_path = os.path.join(os.path.dirname(__file__), "configs.yaml")
+    with open(config_path, "r") as file:
         config = yaml.safe_load(file)
     xu = []
     xl = []

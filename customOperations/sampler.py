@@ -1,9 +1,10 @@
 from pymoo.core.individual import Individual
 from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.core.problem import Problem
-from bounds import dynamic_xu_xl
+from customOperations.bounds import dynamic_xu_xl
 import numpy as np
 import yaml
+import os
 
 
 class CustomIntegerRandomSampling(FloatRandomSampling):
@@ -15,7 +16,8 @@ class CustomIntegerRandomSampling(FloatRandomSampling):
         xl, xu = problem.bounds()
         xl = xl[0:n]
         xu = xu[0:n]
-        with open("./configs.yaml", "r") as file:
+        config_path = os.path.join(os.path.dirname(__file__), "configs.yaml")
+        with open(config_path, "r") as file:
             config = yaml.safe_load(file)
         X = np.column_stack([np.random.randint(config["model_key_xl"], config["model_key_xu"], size=n_samples) for _ in range(n)])
         full_solution = np.zeros((n_samples, problem.n_var))
