@@ -9,10 +9,7 @@ import os
 sys.path.append(os.path.abspath("../../"))
 from customOperations.archBuilderDir.encodingToArch import decode_and_build_unet
 
-def evaluate_model_psnr(model):
-    device='cuda'
-    dataset = DeblurringDataset(blurred_dir='/teamspace/studios/this_studio/dataset/val_crops/blur_crops', sharp_dir='/teamspace/studios/this_studio/dataset/val_crops/sharp_crops')
-    dataloader = DataLoader(dataset, batch_size=8, shuffle=False, num_workers=4)
+def evaluate_model_psnr(model, dataloader, device):
     model.eval()
     model.to(device)
     
@@ -40,5 +37,8 @@ if __name__ == "__main__":
 
 
     model = decode_and_build_unet([ 2,  2,  3,  1,  3,  0,  8,  0, 11,  0, 15,  2])
-    avg_psnr = evaluate_model_psnr(model)
+    dataset = DeblurringDataset(blurred_dir='/teamspace/studios/this_studio/dataset/train_crops/blur_crops', sharp_dir='/teamspace/studios/this_studio/dataset/train_crops/sharp_crops')
+    dataloader = DataLoader(dataset, batch_size=8, shuffle=False, num_workers=4)
+
+    avg_psnr = evaluate_model_psnr(model, dataloader, 'cuda:0')
     print(f"Average PSNR: {avg_psnr:.2f} dB") 

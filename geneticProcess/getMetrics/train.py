@@ -11,7 +11,7 @@ def trainer(model, dataloader, device):
     criterion = nn.L1Loss()
     optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-    num_epochs = 10
+    num_epochs = 0
     for epoch in range(num_epochs):
         model.train()
         total_loss = 0.0
