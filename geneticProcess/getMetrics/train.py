@@ -12,6 +12,7 @@ def trainer(model, dataloader, device):
     optimizer = optim.SGD(model.parameters(), lr=0.01)
 
     num_epochs = 0
+    epoch_loss = 0
     for epoch in range(num_epochs):
         model.train()
         total_loss = 0.0

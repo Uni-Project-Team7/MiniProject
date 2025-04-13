@@ -2,12 +2,12 @@ import torch
 from torch.utils.data import DataLoader
 import numpy as np
 from tqdm import tqdm
-from dataloader import DeblurringDataset
 from torchmetrics.functional import peak_signal_noise_ratio
 import sys
 import os
 sys.path.append(os.path.abspath("../../"))
 from customOperations.archBuilderDir.encodingToArch import decode_and_build_unet
+from geneticProcess.getMetrics.dataloader import DeblurringDataset
 
 def evaluate_model_psnr(model, dataloader, device):
     model.eval()
