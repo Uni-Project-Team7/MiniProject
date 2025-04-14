@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.append(os.path.abspath('../../'))
 import torch
 import torch.nn as nn
 from customOperations.archBuilderDir.archBuilder import *

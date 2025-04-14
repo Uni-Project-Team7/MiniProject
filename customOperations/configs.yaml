@@ -10,7 +10,7 @@ model_conf:
   8: 'Loformer'
 
 model_key_xl: 0
-model_key_xu: 4
+model_key_xu: 5
 
 xl:
   "Nafnet":

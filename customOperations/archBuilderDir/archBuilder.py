@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.append(os.path.abspath('../../'))
 from customOperations.archBuilderDir.base_arch.LakdNet import Mixerblock as LakdBlock
 from customOperations.archBuilderDir.base_arch.FftFormer import TransformerBlock as FftBlock
 from customOperations.archBuilderDir.base_arch.Loformer import TransformerBlock_2b as LoformerBlock
