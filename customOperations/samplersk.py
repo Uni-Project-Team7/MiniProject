@@ -50,7 +50,7 @@ class CustomIntegerRandomSampling(FloatRandomSampling):
         max_bound = [4, 8, 12, 16]
         prev = 1
         for i in range(4):
-            prev = rng.integers(prev, max_bound[i] + 1)  # Using rng for reproducibility
+            prev = rng.integers(prev+1, max_bound[i] + 1)  # Using rng for reproducibility
             ans.append(prev)
 
         return ans

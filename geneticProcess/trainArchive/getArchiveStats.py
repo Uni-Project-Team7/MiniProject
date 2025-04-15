@@ -12,7 +12,8 @@ with open(absolute_path, 'r') as f:
 
 def worker(candidate, device, ind) :
     get_stats(candidate, device)
-    with open(str(ind) + ".json", "w") as f:
+    store_path = os.path.abspath('temp_candidates')
+    with open(store_path + str(ind) + ".json", "w") as f:
         json.dump(candidate, f)
 
 for ind, candidate in enumerate(archive):
