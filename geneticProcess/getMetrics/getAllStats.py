@@ -30,16 +30,18 @@ def get_stats(candidate, device):
     train_time = end_train_time - start_train_time
 
     start_val_time = time.time()
-    psnr = evaluate_model_psnr(model, test_dataloader, device)
+    psnr, ssim = evaluate_model_psnr(model, test_dataloader, device)
     end_val_time = time.time()
     val_time = end_val_time - start_val_time
 
     candidate['flops'] = flops
     candidate['params'] = params
     candidate['train_loss'] = train_loss
+    
     candidate['psnr'] = psnr
     candidate['train_time'] = train_time
     candidate['val_time'] = val_time
+    candidate['ssim'] = ssim
     
     
 
