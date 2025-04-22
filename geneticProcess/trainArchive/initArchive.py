@@ -11,7 +11,7 @@ if __name__ == '__main__' :
     pop = sampler._do(problem, 100)
     archive = []
     for i in pop:
-        a = {'gene' : i.tolist(), 'flops' : -2, 'params' : -2, 'train_loss' : -2, 'psnr' : -2, 'train_time' : -2, 'val_time' : -2} 
+        a = {'gene' : i.tolist(), 'flops' : -2, 'params' : -2, 'train_loss' : -2, 'psnr' : -2, 'ssim' : -2} 
         archive.append(a)
 
     with open('archive.json', 'w') as f:
