@@ -19,10 +19,7 @@ def get_stats(candidate, device):
     gene = candidate['gene']
     print(f'evaluating gene : {gene}')
 
-    train_dataset = DeblurringDataset(blurred_dir='/teamspace/studios/this_studio/dataset/train_crops/blur_crops', sharp_dir='/teamspace/studios/this_studio/dataset/train_crops/sharp_crops')
-    train_dataloader = DataLoader(train_dataset, batch_size=8, shuffle=True, num_workers=4)
-    test_dataset = DeblurringDataset(blurred_dir='/teamspace/studios/this_studio/dataset/val_crops/blur_crops', sharp_dir='/teamspace/studios/this_studio/dataset/val_crops/sharp_crops')
-    test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=False, num_workers=4)
+
     
     model = decode_and_build_unet(gene)
     model.to(device)
