@@ -5,9 +5,9 @@ model_conf:
   3: 'CGNet'
   4: 'Restormer'
   5: 'CaptNet'
-  6: 'UFP-Deblur'
+  6: 'Loformer'
   7: 'SwinIR'
-  8: 'Loformer'
+  8: 'UFP-Debt'
 
 model_key_xl: 0
 model_key_xu: 5

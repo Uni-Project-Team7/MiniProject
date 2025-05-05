@@ -71,7 +71,7 @@ def Capt_builder(params):
             param2 = 8
         case 3:
             param2 = 16
-    
+
     if params[2] != 3:
         return [nn.Sequential(*([CaptCNNBlock(dim) for _ in range(param1)] if params[2] <= 0
                 else [CaptBlock(dim, num_heads=param2) for _ in range(param1)])),
@@ -87,12 +87,15 @@ def Rest_builder(params):
     param1 = int(params[0])
     param2 = int(params[1])
     match param2:
+        case 1:
+            param2 = 1
+        case 2:
+            param2 = 2
         case 3:
-            param2 =  4
+            param2 = 4
         case 4:
             param2 = 8
-        case _:
-            pass 
+
     #print(param1, param2, dim)
     if params[2] != 3:
         return [nn.Sequential(*[RestormerBlock(dim=dim, num_heads=param2, ffn_expansion_factor=2.66, bias=False,
@@ -112,18 +115,21 @@ def Lo_builder(params):
     param1 = int(params[0])
     param2 = int(params[1])
     match param2:
-        case 3:
-            param2 =  4
-        case 4:
+        case 1.0:
+            param2 = 1
+        case 2.0:
+            param2 = 2
+        case 3.0:
+            param2 = 4
+        case 4.0:
             param2 = 8
-        case _:
-            pass 
-    
-    #print(param1, param2, dim)
+
+
+
     if params[2] != 3:
         return [
             nn.Sequential(
-            *[LoformerBlock(dim=dim, num_heads=1, ffn_expansion_factor=2.66,
+            *[LoformerBlock(dim=dim, num_heads= param2, ffn_expansion_factor=2.66,
                             bias=True, LayerNorm_type='WithBias',
                             window_size=8, window_size_dct=8,
                             num_k=8,
@@ -131,7 +137,7 @@ def Lo_builder(params):
                             qk_norm=[False, False], temp_adj=None,
                             i=None, ffn='ffn') for _ in range(param1)]),
             nn.Sequential(
-            *[LoformerBlock(dim=dim, num_heads=1, ffn_expansion_factor=2.66,
+            *[LoformerBlock(dim=dim, num_heads=param2, ffn_expansion_factor=2.66,
                             bias=True, LayerNorm_type='WithBias',
                             window_size=8, window_size_dct=8,
                             num_k=8,
@@ -143,7 +149,7 @@ def Lo_builder(params):
 
     else :
         return [nn.Sequential(
-                *[LoformerBlock(dim=dim, num_heads=1, ffn_expansion_factor=2.66,
+                *[LoformerBlock(dim=dim, num_heads=param2, ffn_expansion_factor=2.66,
                                 bias=True, LayerNorm_type='WithBias',
                                 window_size=8, window_size_dct=8,
                                 num_k=8,

@@ -23,9 +23,9 @@ class CustomIntegerRandomSampling(FloatRandomSampling):
         config_path = os.path.join(os.path.dirname(__file__), "configs.yaml")  # Corrected path
         with open(config_path, "r") as file:
             config = yaml.safe_load(file)
-        
+
         # Use rng to sample models, generating n_samples random model indices
-        X = np.column_stack([rng.integers(config["model_key_xl"], config["model_key_xu"], size=n_samples) for _ in range(n)])
+        X = np.column_stack([rng.integers(config["model_key_xl"], config["model_key_xu"] + 1, size=n_samples) for _ in range(n)])
         full_solution = np.zeros((n_samples, problem.n_var))
         full_solution[:, :n] = X
 
@@ -36,7 +36,7 @@ class CustomIntegerRandomSampling(FloatRandomSampling):
             ans = self.sample_param1(rng)  # Pass rng to sample_param1 for parameter generation
             for j in range(4):
                 dynamic_params[j * 2] = ans[j]
-            
+
             # Store the dynamic parameters back into the solution
             full_solution[i, n:] = dynamic_params
 

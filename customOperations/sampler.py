@@ -19,7 +19,7 @@ class CustomIntegerRandomSampling(FloatRandomSampling):
         config_path = os.path.join(os.path.dirname(__file__), "configs.yaml")
         with open(config_path, "r") as file:
             config = yaml.safe_load(file)
-        X = np.column_stack([np.random.randint(config["model_key_xl"], config["model_key_xu"], size=n_samples) for _ in range(n)])
+        X = np.column_stack([np.random.randint(config["model_key_xl"], config["model_key_xu"] + 1, size=n_samples) for _ in range(n)])
         full_solution = np.zeros((n_samples, problem.n_var))
         full_solution[:, :n] = X
         for i in range(n_samples):
@@ -33,7 +33,7 @@ class CustomIntegerRandomSampling(FloatRandomSampling):
 
         individuals = np.array([Individual(X=x) for x in full_solution])
         return full_solution
-    
+
     def sample_param1(self):
         ans = []
         max_bound = [4, 8, 12, 16]
@@ -41,7 +41,7 @@ class CustomIntegerRandomSampling(FloatRandomSampling):
         for i in range(4):
             prev = np.random.randint(prev, max_bound[i] + 1)
             ans.append(prev)
-        
+
         return ans
 
 

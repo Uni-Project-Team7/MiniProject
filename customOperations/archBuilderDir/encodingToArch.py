@@ -32,7 +32,7 @@ def decode_and_build_unet(model_array, dim = 64):
     model3 = model_array[2]
     bottleneck_model = model_array[3]
     #print("ia ma ")
-    
+
     #print(model_array)
     model1_params = [model_array[4], model_array[5], 0, dim]
     model2_params = [model_array[6], model_array[7], 1, dim]
@@ -43,7 +43,6 @@ def decode_and_build_unet(model_array, dim = 64):
     stage1 = model_function(model2, model2_params)
     stage2 = model_function(model3, model3_params)
     stage3 = model_function(bottleneck_model, bottleneck_params)
-
     unet_model = Model(stage0, stage1, stage2, stage3, dim)
     return unet_model
 
@@ -63,7 +62,9 @@ def model_function(model_type, params):
         case 5:
             return Capt_builder(params)
         case 6:
-            return UFP_builder(params)
+            hello =  Lo_builder(params)
+            print(hello)
+            return hello
         case 7:
             return Swin_builder(params)
         case 8:
@@ -146,7 +147,7 @@ class Model(nn.Module):
         skip0 = torch.cat([up0_out, enc0_out], 1)
         reduce_chan0 = self.reduce0(skip0)
         dec0_out = self.dec0(reduce_chan0)
-        
+
         if test:
             return enc0_out, enc1_out, enc2_out, bottle, dec2_out, dec1_out, dec0_out, self.final(dec0_out)
 
