@@ -62,9 +62,7 @@ def model_function(model_type, params):
         case 5:
             return Capt_builder(params)
         case 6:
-            hello =  Lo_builder(params)
-            print(hello)
-            return hello
+            return EVSSM_builder(params)
         case 7:
             return Swin_builder(params)
         case 8:

@@ -5,12 +5,12 @@ model_conf:
   3: 'CGNet'
   4: 'Restormer'
   5: 'CaptNet'
-  6: 'Loformer'
+  6: 'EVSSM'
   7: 'SwinIR'
   8: 'UFP-Debt'
 
 model_key_xl: 0
-model_key_xu: 5
+model_key_xu: 6
 
 xl:
   "Nafnet":
@@ -42,6 +42,9 @@ xl:
     param2: 0
   "conv-default":
     param1: 0
+    param2: 0
+  "EVSSM":
+    param1: 6
     param2: 0
 
 xu:
@@ -75,6 +78,8 @@ xu:
   "conv-default":
     param1: 1
     param2: 0
-
+  "EVSSM":
+    param1: 12
+    param2: 0
 
 

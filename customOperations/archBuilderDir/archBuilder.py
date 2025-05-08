@@ -8,6 +8,7 @@ from customOperations.archBuilderDir.base_arch.Nafnet import NAFBlock
 from customOperations.archBuilderDir.base_arch.CGNet import NAFBlock0 as CGNafnet, CascadedGazeBlock as CGBlock
 from customOperations.archBuilderDir.base_arch.Restormer import TransformerBlock as RestormerBlock
 from customOperations.archBuilderDir.base_arch.CaptNet import TransformerBlock as CaptBlock, CNNBlock as CaptCNNBlock
+from customOperations.archBuilderDir.base_arch.EVSSM import EVS
 import torch.nn as nn
 
 def nafnet_builder(params):
@@ -170,6 +171,39 @@ def FFT_builder(params):
     else :
         return [nn.Sequential(*[FftBlock(dim=dim, att=True, ffn_expansion_factor=3, bias=False) for i in range(param1)])]
 
+def EVSSM_builder(params):
+    dim = params[3] * (2 ** params[2])
+    param1 = int(params[0])
+    patch_size = 0
+
+    match params[2]:
+        case 0:
+            patch_size = 384
+        case 1:
+            patch_size = 192
+        case 2 | 3:
+            patch_size = 96
+
+    if params[2] != 3:
+        enc = nn.Sequential()
+        for i in range(param1):
+            block = EVS(dim=dim, ffn_expansion_factor=3, bias=False, att=True, idx=i, patch=patch_size)
+            enc.add_module(f"block{i}", block)
+
+        dec = nn.Sequential()
+        for i in range(param1):
+            block = EVS(dim=dim, ffn_expansion_factor=3, bias=False, att=True, idx=i, patch=patch_size)
+            dec.add_module(f"block{i}", block)
+
+        return [enc, dec]
+
+    else:
+        bottle = nn.Sequential()
+        for i in range(param1):
+            block = EVS(dim=dim, ffn_expansion_factor=3, bias=False, att=True, idx=i, patch=384)
+            bottle.add_module(f"block{i}", block)
+
+        return [bottle]
 
 def conv_def_builder(params):
     dim = params[3] * (2 ** params[2])

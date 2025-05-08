@@ -41,7 +41,8 @@ class DeblurringDataset(Dataset):
 
 
 if __name__ == '__main__' :
-    dataset = DeblurringDataset(blurred_dir='/teamspace/studios/this_studio/dataset/train_crops/blur_crops', sharp_dir='/teamspace/studios/this_studio/dataset/train_crops/sharp_crops')
+    dataset = DeblurringDataset(blurred_dir='/workspace/nas_dataset/Datasets/train_pro/input_crops', sharp_dir='/workspace/nas_dataset/Datasets/train_pro/target_crops')
+
     print(f"Number of train image pairs: {len(dataset)}")
-    dataset = DeblurringDataset(blurred_dir='/teamspace/studios/this_studio/dataset/val_crops/blur_crops', sharp_dir='/teamspace/studios/this_studio/dataset/val_crops/sharp_crops')
+    dataset = DeblurringDataset(blurred_dir='/workspace/nas_dataset/Datasets/testpro/input_crops', sharp_dir='/workspace/nas_dataset/Datasets/testpro/target_crops')
     print(f"Number of val image pairs: {len(dataset)}")
