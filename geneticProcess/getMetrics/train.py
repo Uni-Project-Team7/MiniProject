@@ -10,8 +10,8 @@ def trainer(model, dataloader, device):
     criterion = nn.L1Loss()
     optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-    num_epochs = 0
-    epoch_loss = 0
+    num_epochs = 1
+    epoch_loss = []
 
     for epoch in range(num_epochs):
         model.train()
@@ -29,6 +29,6 @@ def trainer(model, dataloader, device):
             total_loss += loss.item() * batch_size
             total_samples += batch_size
 
-        epoch_loss = total_loss / total_samples
+        epoch_loss.append(total_loss / total_samples)
 
     return epoch_loss

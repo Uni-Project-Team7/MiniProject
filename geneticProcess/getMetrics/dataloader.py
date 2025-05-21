@@ -7,9 +7,13 @@ import cv2
 
 
 class DeblurringDataset(Dataset):
-    def __init__(self, blurred_dir, sharp_dir):
-        self.blurred_dir = blurred_dir
-        self.sharp_dir = sharp_dir
+    def __init__(self, dataset_type):
+        if dataset_type == 1:
+            self.blurred_dir = '/home/nas/dataset/train/input/'
+            self.sharp_dir = '/home/nas/dataset/train/target/'
+        else :
+            self.blurred_dir = '/home/nas/dataset/val/input/'
+            self.sharp_dir = '/home/nas/dataset/val/target/'
         self.transform = A.Compose(
             [
                 A.Normalize(mean=0, std=1, max_pixel_value=255.0),
@@ -17,7 +21,7 @@ class DeblurringDataset(Dataset):
             ],
             additional_targets={"image0": "image"}
         )
-        self.image_filenames = sorted(os.listdir(blurred_dir))
+        self.image_filenames = sorted(os.listdir(self.blurred_dir))
 
     def __len__(self):
         return len(self.image_filenames)
@@ -26,23 +30,23 @@ class DeblurringDataset(Dataset):
         img_name = self.image_filenames[idx]
         blurred_path = os.path.join(self.blurred_dir, img_name)
         sharp_path = os.path.join(self.sharp_dir, img_name)
-        
+
         blurred = cv2.imread(blurred_path)
         blurred = cv2.cvtColor(blurred, cv2.COLOR_BGR2RGB)
         sharp = cv2.imread(sharp_path)
         sharp = cv2.cvtColor(sharp, cv2.COLOR_BGR2RGB)
-        
+
         if self.transform:
             augmented = self.transform(image=blurred, image0=sharp)
             blurred = augmented['image']
             sharp = augmented['image0']
-        
+
         return blurred, sharp
 
 
 if __name__ == '__main__' :
-    dataset = DeblurringDataset(blurred_dir='/workspace/nas_dataset/Datasets/train_pro/input_crops', sharp_dir='/workspace/nas_dataset/Datasets/train_pro/target_crops')
+    dataset = DeblurringDataset(dataset_type = 1)
 
     print(f"Number of train image pairs: {len(dataset)}")
-    dataset = DeblurringDataset(blurred_dir='/workspace/nas_dataset/Datasets/testpro/input_crops', sharp_dir='/workspace/nas_dataset/Datasets/testpro/target_crops')
+    dataset = DeblurringDataset(dataset_type = 0)
     print(f"Number of val image pairs: {len(dataset)}")
