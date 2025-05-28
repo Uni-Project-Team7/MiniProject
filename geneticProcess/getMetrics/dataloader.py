@@ -1,26 +1,40 @@
 import os
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
+import cv2
+from torch.utils.data import Dataset
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-import cv2
 
 
 class DeblurringDataset(Dataset):
-    def __init__(self, dataset_type):
+    def __init__(self, dataset_type=1):
         if dataset_type == 1:
             self.blurred_dir = '/home/nas/dataset/train/input/'
             self.sharp_dir = '/home/nas/dataset/train/target/'
-        else :
+        else:
             self.blurred_dir = '/home/nas/dataset/val/input/'
             self.sharp_dir = '/home/nas/dataset/val/target/'
+
         self.transform = A.Compose(
             [
-                A.Normalize(mean=0, std=1, max_pixel_value=255.0),
-                ToTensorV2(),
+                A.HorizontalFlip(p=0.5),
+                A.VerticalFlip(p=0.2),
+                A.RandomRotate90(p=0.5),
+                A.ShiftScaleRotate(
+                    shift_limit=0.0625, scale_limit=0.1, rotate_limit=15,
+                    p=0.5, border_mode=cv2.BORDER_REFLECT
+                ),
+                A.RandomBrightnessContrast(
+                    brightness_limit=0.2, contrast_limit=0.2, p=0.5
+                ),
+                A.GaussNoise(var_limit=(10.0, 50.0), p=0.2),
+                A.Normalize(mean=(0.0, 0.0, 0.0),
+                            std=(1.0, 1.0, 1.0),
+                            max_pixel_value=255.0),
+                ToTensorV2()
             ],
             additional_targets={"image0": "image"}
         )
+
         self.image_filenames = sorted(os.listdir(self.blurred_dir))
 
     def __len__(self):
@@ -42,11 +56,3 @@ class DeblurringDataset(Dataset):
             sharp = augmented['image0']
 
         return blurred, sharp
-
-
-if __name__ == '__main__' :
-    dataset = DeblurringDataset(dataset_type = 1)
-
-    print(f"Number of train image pairs: {len(dataset)}")
-    dataset = DeblurringDataset(dataset_type = 0)
-    print(f"Number of val image pairs: {len(dataset)}")

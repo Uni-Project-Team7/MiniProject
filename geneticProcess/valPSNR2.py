@@ -17,7 +17,6 @@ def evaluate_model_psnr(gene, batch_size):
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, num_workers=22, shuffle=False)
 
     model = decode_and_build_unet(gene)
-    model.load_state_dict(torch.load("/temp/model.pth"))
     model.to('cuda:0')
     model.eval()
 
