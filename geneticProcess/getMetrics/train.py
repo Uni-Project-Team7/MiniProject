@@ -1,40 +1,26 @@
 import os
-import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import torchvision.models as models
-import torch.multiprocessing as mp
-from torch.utils.data.distributed import DistributedSampler
-from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.distributed import init_process_group, destroy_process_group
-from torch.utils.data import DataLoader
-sys.path.append(os.path.abspath("../../"))
-from customOperations.archBuilderDir.encodingToArch import decode_and_build_unet
-from geneticProcess.getMetrics.dataloader import DeblurringDataset
+from tqdm import tqdm
 
+def trainer(model, dataloader, device):
+    model = model.to(device)
+    criterion = nn.L1Loss()
+    optimizer = optim.SGD(model.parameters(), lr=0.01)
 
-torch.backends.cudnn.benchmark = True
-
-
-def ddp_setup(rank, world_size):
-    """
-    Args:
-        rank: Unique identifier of each process
-        world_size: Total number of processes
-    """
-    os.environ["MASTER_ADDR"] = "localhost"
-    os.environ["MASTER_PORT"] = "12355"
-    init_process_group(backend="nccl", rank=rank, world_size=world_size)
-    torch.cuda.set_device(rank)
-
-def train(model, dataloader, criterion, optimizer, device):
-    num_epochs = 6
+    num_epochs = 10
 
     for epoch in range(num_epochs):
         model.train()
-        for blurred, sharp in dataloader:
+        total_loss = 0.0
+        total_samples = 0
+
+        # Add tqdm here
+        pbar = tqdm(dataloader, desc=f"Epoch {epoch+1}/{num_epochs}", unit="batch")
+        for blurred, sharp in pbar:
             blurred, sharp = blurred.to(device), sharp.to(device)
             optimizer.zero_grad()
             output = model(blurred)
@@ -42,32 +28,16 @@ def train(model, dataloader, criterion, optimizer, device):
             loss.backward()
             optimizer.step()
 
+            batch_size = blurred.size(0)
+            total_loss += loss.item() * batch_size
+            total_samples += batch_size
 
-def inter(rank:int, world_size: int, gene):
-    ddp_setup(rank, world_size)
-    device = rank
+            avg_loss = total_loss / total_samples
+            pbar.set_postfix(loss=f"{avg_loss:.4f}")
 
-    model = decode_and_build_unet(gene).to(device)
-    model = DDP(model, device_ids=[rank])
+        epoch_loss = total_loss / total_samples
+        print(f"Epoch [{epoch+1}/{num_epochs}] - Avg Loss: {epoch_loss:.4f}")
 
-    criterion = nn.L1Loss()
-    optimizer = optim.SGD(model.parameters(), lr=0.01)
+    return epoch_loss
 
-    workers = 22
 
-    train_dataset = DeblurringDataset(dataset_type = 1)
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, num_workers=workers, sampler=DistributedSampler(train_dataset))
-
-    train(model, train_dataloader, criterion, optimizer, device)
-
-    if rank == 0:
-        checkpoint = {
-            'model': model.module.state_dict(),
-        }
-        torch.save(checkpoint, './temp/check.pth')
-
-    destroy_process_group()
-
-def trainer(gene, batch_size):
-    world_size = torch.cuda.device_count()
-    mp.spawn(inter, args=(world_size, gene, batch_size), nprocs=world_size)

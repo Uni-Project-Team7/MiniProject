@@ -68,7 +68,7 @@ def find_max_batch_size(model: nn.Module, device=None, image_sizes=[64, 128, 256
 
     return results
 
-gene = [6.0, 6.0, 6.0, 6.0, 4.0, 0.0, 8.0, 0.0, 12.0, 0.0, 15.0, 0.0]
+gene = [2.0, 2.0, 2.0, 2.0, 4.0, 0.0, 8.0, 0.0, 12.0, 0.0, 16.0, 0.0]
 
 model = decode_and_build_unet(gene).to('cuda:0')
 

@@ -7,18 +7,11 @@ import sys
 import os
 sys.path.append(os.path.abspath("../../"))
 from customOperations.archBuilderDir.encodingToArch import decode_and_build_unet
-from geneticProcess.getMetrics.dataloader import DeblurringDataset
 sys.path.append(os.path.abspath("../../"))
 from customOperations.archBuilderDir.encodingToArch import decode_and_build_unet
 
-def evaluate_model_psnr(gene, batch_size):
-
-    val_dataset = DeblurringDataset(dataset_type = 1)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, num_workers=22, shuffle=False)
-
-    model = decode_and_build_unet(gene)
-    model.load_state_dict(torch.load("/temp/model.pth"))
-    model.to('cuda:0')
+def evaluate_model_psnr(model, dataloader, device):
+    model = model.to(device)
     model.eval()
 
     total_psnr = 0.0
@@ -48,5 +41,3 @@ def evaluate_model_psnr(gene, batch_size):
     avg_ssim = total_ssim / count
 
     return avg_psnr, avg_ssim
-
-

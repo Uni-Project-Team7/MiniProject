@@ -25,7 +25,7 @@ from customOperations.archBuilderDir.archBuilder import *
 # dec1 : (x, 128, 256, 256)
 # dec2 : (x, 64, 512, 512)
 
-def decode_and_build_unet(model_array, dim = 64):
+def decode_and_build_unet(model_array, dim = 48):
     # Parsing models
     model1 = model_array[0]
     model2 = model_array[1]
